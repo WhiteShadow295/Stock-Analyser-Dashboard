@@ -1,8 +1,10 @@
-import streamlit as st
-from model.gemini import geminiService
-from model.fmp import Fmp
 import pandas as pd
+import streamlit as st
 import plotly.graph_objects as go
+from prophet.plot import plot_plotly, plot_components_plotly
+from model.gemini import geminiService
+from model.forecast import Forecast
+from model.fmp import Fmp
 
 class mainUI:
     
@@ -10,21 +12,30 @@ class mainUI:
         st.set_page_config(layout="wide") 
         self.fmp = Fmp()
         self.gemini = geminiService()
+        self.forecast = Forecast()
             
     def sidebarUI(self):
         with st.sidebar:
-            st.title('Navigation Bar')
+            st.title('Sections')
             st.markdown("[Introduction](#introduction)")
             st.markdown("[Historical Data](#historicalData)")
             st.markdown("[Key Metrics](#key-metrics)")
             st.markdown("[Key Metrics Graph](#key-metrics-graph)")
+            st.markdown("[Stock Forecast](#stock-forecast)")
 
     def titleUI(self):
         center_title = st.columns([1, 2, 1])
         
         with center_title[1]:
             # Set the title of the app
-            st.html("<h1 style='text-align: center;'>Simple Stock Analyser</h1>")
+            st.html("<h1 style='text-align: center;'>Stock Analyser Dashboard</h1>")
+            
+            # Add a text input for the stock symbol
+            self.stock_symbol = st.text_input('Enter Stock Ticker Symbol', '').upper()
+            
+            click = st.button('Analyse Stock')
+            
+            return click
 
     def introductionUI(self):
         st.header('Introduction',anchor='introduction')
@@ -32,8 +43,8 @@ class mainUI:
             with st.expander("See Introduction"):            
             
                 # Get introduction of the company
-                # st.write(self.gemini.get_introduction(symbol=self.stock_symbol))
-                st.write('Successs....') ## remove it when done
+                st.write(self.gemini.get_introduction(symbol=self.stock_symbol))
+                # st.write('Successs....') ## remove it when done
 
     def historicalDataUI(self):
         st.header('Historical Data',anchor='historicalData')
@@ -91,6 +102,7 @@ class mainUI:
                 yaxis_title="Price" 
             )
             
+            self.historicalData = historicalData
             st.plotly_chart(fig, use_container_width=True)
     
     def keyMetricsUI(self):
@@ -123,27 +135,31 @@ class mainUI:
             st.text('Free Cash Flow Per Share Growth Over the Years')
             st.bar_chart(keyMetrics, x='calendarYear', y='freeCashFlowPerShare', x_label='Year', y_label='Free Cash Flow Per Share ($)',color='#CB9DF0')
     
-    def predictionUI(self):
-        st.header('Prediction', anchor='prediction')
+    def forecastUI(self):
+        st.header('Stock Forecast', anchor='stock-forecast')
         with st.spinner("Loading Prediction..."):
-            pass
+            
+            m, forecast = self.forecast.fbProphet(self.historicalData)
+            st.subheader(f'Forecast Data for {self.stock_symbol} using Facebook Prophet')
+            st.plotly_chart(plot_plotly(m, forecast), theme=None, use_container_width=True)
+            st.plotly_chart(plot_components_plotly(m, forecast), theme=None, use_container_width=True)
     
     def main(self):
         self.sidebarUI()
-        self.titleUI()
-
-        # Add a text input for the stock symbol
-        self.stock_symbol = st.text_input('Enter Stock Ticker Symbol', '').upper()
-
+        click = self.titleUI()
+        
         # Add a button to submit the form
-        if st.button('Analyze'):
-            st.header(f'Analyzing stock: {self.stock_symbol}')
+        if click and self.stock_symbol != '':
+            st.header(f'Analysing stock: {self.stock_symbol}')
             
             self.introductionUI() 
             self.historicalDataUI()
             keyMetrics = self.keyMetricsUI()
             self.keyMetricsGraphUI(keyMetrics)
-            
+            self.forecastUI()
+        
+        elif click and self.stock_symbol == '':
+            st.error('Please enter a stock symbol to analyse!')
 
 
 if __name__ == "__main__":
