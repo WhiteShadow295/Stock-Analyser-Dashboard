@@ -7,7 +7,6 @@ class geminiService:
     def __init__(self):
         load_dotenv()
         self.api = os.getenv("GENAI_API_KEY")
-        print(self.api)
     
     def get_introduction(self, symbol: str, genaiModel="gemini-1.5-flash"):
         # Get introduction of the company
