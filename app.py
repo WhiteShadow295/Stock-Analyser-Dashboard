@@ -1,7 +1,5 @@
 import streamlit as st
-import google.generativeai as genai
-from dotenv import load_dotenv
-import os
+from model.gemini import geminiService
 from model.fmp import Fmp
 import pandas as pd
 import json
@@ -10,10 +8,10 @@ import plotly.graph_objects as go
 class mainUI:
     
     def __init__(self):
-        load_dotenv()
         st.set_page_config(layout="wide") 
-        self.fmp = Fmp() 
-    
+        self.fmp = Fmp()
+        self.gemini = geminiService()
+            
     def sidebarUI(self):
         with st.sidebar:
             st.title('Navigation Bar')
@@ -31,20 +29,17 @@ class mainUI:
 
     def introductionUI(self):
         st.header('Introduction',anchor='introduction')
-        with st.expander("See Introduction"):            
-            with st.spinner("Loading..."):
+        with st.spinner("Loading..."):
+            with st.expander("See Introduction"):            
             
                 # Get introduction of the company
-                # genai.configure(api_key=os.getenv("GENAI_API_KEY"))
-                # model = genai.GenerativeModel("gemini-1.5-flash")
-                
-                # response = model.generate_content(f"Explain this US company with the stock symbol {self.stock_symbol}")
-                # st.write(f'{response.text}')
-                st.write('Successs....')
+                # st.write(self.gemini.get_introduction(symbol=self.stock_symbol))
+                st.write('Successs....') ## remove it when done
 
     def historicalDataUI(self):
         st.header('Historical Data',anchor='historicalData')
         with st.spinner("Loading Historical Data..."):
+            
             # Get key metrics of the company
             historicalData = self.fmp.get_historical_data(symbol=self.stock_symbol) 
             
