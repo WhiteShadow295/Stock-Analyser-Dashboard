@@ -2,7 +2,6 @@ import streamlit as st
 from model.gemini import geminiService
 from model.fmp import Fmp
 import pandas as pd
-import json
 import plotly.graph_objects as go
 
 class mainUI:
@@ -42,10 +41,7 @@ class mainUI:
             
             # Get key metrics of the company
             historicalData = self.fmp.get_historical_data(symbol=self.stock_symbol) 
-            
-            historicalData = historicalData['historical']
-            json_str = json.dumps(historicalData)
-            historicalData = pd.read_json(json_str) 
+            historicalData = pd.DataFrame(historicalData['historical'])
             
             # Calculate the Simple Moving Average (e.g., 50-day SMA)
             historicalData['SMA_50'] = historicalData['close'].rolling(window=50).mean()
@@ -105,12 +101,11 @@ class mainUI:
             # Get key metrics of the company
             # data = self.fmp.get_company_key_metrics(period='annual', symbol=self.stock_symbol)
             st.dataframe(data)     
-            json_str = json.dumps(data)
-            return pd.read_json(json_str)
+            return pd.DataFrame(data)
         
     def keyMetricsGraphUI(self, keyMetrics):  
         st.subheader('Key Metrics Graph', anchor='key-metrics-graph')
-        revenueCol, netIncomeCol, freeCashFlowCol = st.columns(3)
+        revenueCol, netIncomeCol, operatingCashFlowCol, freeCashFlowCol = st.columns(4)
         
         with revenueCol:
             st.text('Revenue Per Share Growth Over the Years')
@@ -120,9 +115,18 @@ class mainUI:
             st.text('Net Income Per Share Growth Over the Years')
             st.bar_chart(keyMetrics, x='calendarYear', y='netIncomePerShare', x_label='Year', y_label='Net Income Per Share ($)', color='#FFA500')
         
+        with operatingCashFlowCol:
+            st.text('Operating Cash Flow Per Share Growth Over the Years')
+            st.bar_chart(keyMetrics, x='calendarYear', y='operatingCashFlowPerShare', x_label='Year', y_label='Operating Cash Flow Per Share ($)',color='#00ff00')
+            
         with freeCashFlowCol:
             st.text('Free Cash Flow Per Share Growth Over the Years')
-            st.bar_chart(keyMetrics, x='calendarYear', y='freeCashFlowPerShare', x_label='Year', y_label='Free Cash Flow Per Share ($)',color='#00ff00')
+            st.bar_chart(keyMetrics, x='calendarYear', y='freeCashFlowPerShare', x_label='Year', y_label='Free Cash Flow Per Share ($)',color='#CB9DF0')
+    
+    def predictionUI(self):
+        st.header('Prediction', anchor='prediction')
+        with st.spinner("Loading Prediction..."):
+            pass
     
     def main(self):
         self.sidebarUI()
