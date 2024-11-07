@@ -5,7 +5,7 @@ import os
 from model.fmp import Fmp
 import pandas as pd
 import json
-
+import plotly.graph_objects as go
 
 class mainUI:
     
@@ -42,6 +42,65 @@ class mainUI:
                 # st.write(f'{response.text}')
                 st.write('Successs....')
 
+    def historicalDataUI(self):
+        st.header('Historical Data',anchor='historicalData')
+        with st.spinner("Loading Historical Data..."):
+            # Get key metrics of the company
+            historicalData = self.fmp.get_historical_data(symbol=self.stock_symbol) 
+            
+            historicalData = historicalData['historical']
+            json_str = json.dumps(historicalData)
+            historicalData = pd.read_json(json_str) 
+            
+            # Calculate the Simple Moving Average (e.g., 50-day SMA)
+            historicalData['SMA_50'] = historicalData['close'].rolling(window=50).mean()
+            historicalData['SMA_150'] = historicalData['close'].rolling(window=150).mean()
+            
+            # Create the candlestick chart
+            fig = go.Figure(
+                data=[
+                    go.Candlestick(
+                        x=historicalData["date"],
+                        open=historicalData["open"],
+                        high=historicalData["high"],
+                        low=historicalData["low"],
+                        close=historicalData["close"],
+                        increasing_line_color="green",
+                        decreasing_line_color="red",
+                    )
+                ]
+            )
+
+        
+            # Add the SMA line
+            fig.add_trace(
+                go.Scatter(
+                    x=historicalData["date"],
+                    y=historicalData["SMA_50"],
+                    mode="lines",
+                    name="50-Day SMA",
+                    line=dict(color="blue", width=2)
+                )
+            )
+            
+            fig.add_trace(
+                go.Scatter(
+                    x=historicalData["date"],
+                    y=historicalData["SMA_150"],
+                    mode="lines",
+                    name="150-Day SMA",
+                    line=dict(color="green", width=2)
+                )
+            )
+            
+            # Customize the layout
+            fig.update_layout(
+                title=f"{self.stock_symbol} Historical Stock Price (USD)",
+                xaxis_title="Date",
+                yaxis_title="Price" 
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
     
     def keyMetricsUI(self):
         st.header('Key Metrics', anchor='key-metrics')
@@ -81,8 +140,8 @@ class mainUI:
         if st.button('Analyze'):
             st.header(f'Analyzing stock: {self.stock_symbol}')
             
-            self.introductionUI()
-            
+            self.introductionUI() 
+            self.historicalDataUI()
             keyMetrics = self.keyMetricsUI()
             self.keyMetricsGraphUI(keyMetrics)
             
