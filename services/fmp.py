@@ -9,7 +9,7 @@ class Fmp:
         self.base_url = os.getenv("FMP_BASE_URL")
         self.api = os.getenv("FMP_API_KEY")
         
-    def get_company_key_metrics(self, period: str, symbol: str):
+    def get_company_key_metrics(self, period: str, symbol: str) -> dict:
         
         url = f'{self.base_url}/key-metrics/{symbol}?period={period}&apikey={self.api}'
         response = requests.get(url)
@@ -20,7 +20,7 @@ class Fmp:
         else:
             return response.json()
         
-    def get_historical_data(self, symbol: str):
+    def get_historical_data(self, symbol: str) -> dict:
         
         url = f'{self.base_url}/historical-price-full/{symbol}?apikey={self.api}'
         response = requests.get(url)

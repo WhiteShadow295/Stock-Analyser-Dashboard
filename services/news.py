@@ -16,7 +16,7 @@ class News:
             last_month_date = today - relativedelta(months=1)
             return last_month_date.strftime("%Y-%m-%d")     
     
-    def get_news(self, query: str, sortBy:str = "popularity"):
+    def get_news(self, query: str, sortBy:str = "popularity") -> dict:
         
         date = self.get_previous_month_date()
         
