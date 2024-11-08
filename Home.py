@@ -4,17 +4,19 @@ import plotly.graph_objects as go
 from prophet.plot import plot_plotly, plot_components_plotly
 from services.gemini import geminiService
 from model.forecast import Forecast
+from utils.base_ui import baseUI
 from services.fmp import Fmp
 
-class mainUI:
+class mainUI(baseUI):
     
     def __init__(self):
-        st.set_page_config(layout="wide") 
+        st.set_page_config(layout="wide", page_title='Stock Analyser Dashboard', page_icon='📈') 
         self.fmp = Fmp()
         self.gemini = geminiService()
         self.forecast = Forecast()
             
     def sidebarUI(self):
+        
         with st.sidebar:
             st.title('Sections')
             st.markdown("[Introduction](#introduction)")
@@ -144,7 +146,8 @@ class mainUI:
             st.plotly_chart(plot_plotly(m, forecast), theme=None, use_container_width=True)
             st.plotly_chart(plot_components_plotly(m, forecast), theme=None, use_container_width=True)
     
-    def main(self):
+    def display(self):
+        
         self.sidebarUI()
         click = self.titleUI()
         
@@ -164,4 +167,4 @@ class mainUI:
 
 if __name__ == "__main__":
     app = mainUI()
-    app.main()   
+    app.display()   
