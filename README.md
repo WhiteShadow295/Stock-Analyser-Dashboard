@@ -8,7 +8,9 @@ Run the code below to start the application:
 streamlit run Home.py
 ```
 
+Model used for stock price prediction `fbprophet`.
+
 API used:
-1. https://newsapi.org
-2. https://site.financialmodelingprep.com
-3. Google Gemini API
+1. [NewsAPI](https://newsapi.org)
+2. [Financial Modeling Prep](https://site.financialmodelingprep.com)
+3. [Google Gemini API](https://ai.google.dev/)
