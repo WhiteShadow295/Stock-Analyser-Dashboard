@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch, Mock
-from model.fmp import Fmp
+from services.fmp import Fmp
 
 class TestFmp(unittest.TestCase):
 

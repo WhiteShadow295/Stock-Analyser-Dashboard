@@ -2,9 +2,9 @@ import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 from prophet.plot import plot_plotly, plot_components_plotly
-from model.gemini import geminiService
+from services.gemini import geminiService
 from model.forecast import Forecast
-from model.fmp import Fmp
+from services.fmp import Fmp
 
 class mainUI:
     
